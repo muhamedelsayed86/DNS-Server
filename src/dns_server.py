@@ -17,7 +17,7 @@ def main():
             flags = flags_int.to_bytes(2, byteorder='big')  
 
             qdcount = (1).to_bytes(2, byteorder='big') 
-            ancount = (0).to_bytes(2, byteorder='big') 
+            ancount = (1).to_bytes(2, byteorder='big') 
             nscount = (0).to_bytes(2, byteorder='big') 
             arcount = (0).to_bytes(2, byteorder='big')  
 
@@ -29,7 +29,17 @@ def main():
             
             question_section = qname + qtype + qclass
 
-            response = header + question_section
+
+            aname = b"\x0ccodecrafters\x02io\x00"
+            atype = (1).to_bytes(2, byteorder='big')
+            aclass = (1).to_bytes(2, byteorder='big')
+            ttl = (60).to_bytes(4, byteorder='big')          
+            rdlength = (4).to_bytes(2, byteorder='big')      
+            rdata = b"\x08\x08\x08\x08"
+
+            answer_section = aname + atype + aclass + ttl + rdlength + rdata
+
+            response = header + question_section + answer_section
             udp_socket.sendto(response, source)
             
         except Exception as e:
