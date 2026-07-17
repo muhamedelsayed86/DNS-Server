@@ -11,9 +11,13 @@ def main():
         try:
             buf, source = udp_socket.recvfrom(512)
             
-            packet_id = (1234).to_bytes(2, byteorder='big')    
+            packet_id = buf[:2]
+            opcode = (buf[2] & 0b01111000) >> 3
+            rd = buf[2] & 0b00000001
 
-            flags_int = (1 << 15) 
+            rcode = 0 if opcode == 0 else 4
+
+            flags_int = (1 << 15) | (opcode << 11) | (rd << 8) | rcode 
             flags = flags_int.to_bytes(2, byteorder='big')  
 
             qdcount = (1).to_bytes(2, byteorder='big') 
