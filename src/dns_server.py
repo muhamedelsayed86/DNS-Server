@@ -25,10 +25,14 @@ def main():
     resolver_ip = "8.8.8.8" 
     resolver_port = 53
     if "--resolver" in sys.argv:
-        idx = sys.argv.index("--resolver")
-        resolver_address = sys.argv[idx + 1]
-        resolver_ip, port_str = resolver_address.split(':')
-        resolver_port = int(port_str)
+        try:
+            addr = sys.argv[sys.argv.index("--resolver") + 1]
+            resolver_ip, port_str = addr.split(':')
+            resolver_port = int(port_str)
+        except (ValueError, IndexError):
+            print("Usage: --resolver <ip>:<port>")
+            sys.exit(1)
+        
         
     print(f"Moe tells you server is running on 127.0.0.1:2053")
     print(f"Forwarding queries to {resolver_ip}:{resolver_port}...")
@@ -70,10 +74,10 @@ def main():
                 
                 f_flags_int = (0 << 15) | (opcode << 11) | (rd << 8) | 0 
                 f_flags = f_flags_int.to_bytes(2, 'big')
-                f_qdcount = (1).to_bytes(2, 'big')
-                f_ancount = (0).to_bytes(2, 'big')
-                f_nscount = (0).to_bytes(2, 'big')
-                f_arcount = (0).to_bytes(2, 'big')
+                f_qdcount = b'\x00\x01'
+                f_ancount = b'\x00\x00'
+                f_nscount = b'\x00\x00'
+                f_arcount = b'\x00\x00'
                 
                 f_header = packet_id + f_flags + f_qdcount + f_ancount + f_nscount + f_arcount
                 f_question = uncompressed_name + qtype + qclass
@@ -117,7 +121,8 @@ def main():
             udp_socket.sendto(final_response, source)
             
         except Exception as e:
-            print(f"Error: {e}")
+            print(f"[!] Hey! Dropped bad packet : {e}")
+            continue
 
 if __name__ == "__main__":
     main()
