@@ -25,6 +25,7 @@ python3 src/dns_server.py
 
 # Start as a Forwarder to an external resolver (e.g., Google DNS)
 python3 src/dns_server.py --resolver 8.8.8.8:53
+```
 
 ## How to Test the Server
 
