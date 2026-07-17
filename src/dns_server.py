@@ -1,6 +1,5 @@
 import socket
 
-
 def main():
     print("Logs from your program will appear here!")
 
@@ -14,7 +13,6 @@ def main():
             packet_id = buf[:2]
             opcode = (buf[2] & 0b01111000) >> 3
             rd = buf[2] & 0b00000001
-
             rcode = 0 if opcode == 0 else 4
 
             flags_int = (1 << 15) | (opcode << 11) | (rd << 8) | rcode 
@@ -27,14 +25,14 @@ def main():
 
             header = packet_id + flags + qdcount + ancount + nscount + arcount
 
-            qname = b"\x0ccodecrafters\x02io\x00"
-            qtype = (1).to_bytes(2, byteorder='big')
-            qclass = (1).to_bytes(2, byteorder='big')
+            null_byte_index = buf.find(b'\x00', 12)
             
-            question_section = qname + qtype + qclass
+            qname = buf[12:null_byte_index + 1]
+            
+            question_section = buf[12:null_byte_index + 5]
 
-
-            aname = b"\x0ccodecrafters\x02io\x00"
+            aname = qname 
+            
             atype = (1).to_bytes(2, byteorder='big')
             aclass = (1).to_bytes(2, byteorder='big')
             ttl = (60).to_bytes(4, byteorder='big')          
@@ -49,7 +47,6 @@ def main():
         except Exception as e:
             print(f"Error receiving data: {e}")
             break
-
 
 if __name__ == "__main__":
     main()
